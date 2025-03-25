@@ -1,0 +1,14 @@
+{
+    "hojas": {
+        "Perros": {
+            "nombre": {"type": "string", "maxlength": 50, "required": true, "regex": "^[A-ZÃ�Ã‰Ã�Ã“ÃšÃ‘][a-zÃ¡Ã©Ã­Ã³ÃºÃ±]*$" , "error_message": "El nombre debe empezar con mayuscula y contener solo letras"},
+            "tamaño": {"type": "string", "maxlength": 50, "required": true, "regex": "^[A-ZÃ�Ã‰Ã�Ã“ÃšÃ‘][a-zÃ¡Ã©Ã­Ã³ÃºÃ±]*$" , "error_message": "El Tamaño debe empezar con mayuscula y contener solo letras"},
+            "edad": {"type": "integer", "min": 1000000000,"max": 9999999999,"required": true, "error_message": "El numero de cedula debe tener 10 digitos"}
+        },
+        "Gatos": {
+            "nombre": {"type": "string", "maxlength": 50, "required": true, "regex": "^[A-ZÃ�Ã‰Ã�Ã“ÃšÃ‘][a-zÃ¡Ã©Ã­Ã³ÃºÃ±]*$" , "error_message": "El nombre debe empezar con mayuscula y contener solo letras"},
+            "tamaño": {"type": "string", "maxlength": 50, "required": true, "regex": "^[A-ZÃ�Ã‰Ã�Ã“ÃšÃ‘][a-zÃ¡Ã©Ã­Ã³ÃºÃ±]*$" , "error_message": "El Tamaño debe empezar con mayuscula y contener solo letras"},
+            "edad": {"type": "integer", "min": 1000000000,"max": 9999999999,"required": true, "error_message": "El numero de cedula debe tener 10 digitos"}
+        }   
+    }
+}

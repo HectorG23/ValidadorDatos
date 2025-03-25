@@ -1,0 +1,39 @@
+{
+    "hojas": {
+        "Clientes": {
+            "nombre": {
+                "tipo": "string",
+                "maxlength": 50,
+                "required": true,
+                "regex": "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]*$",
+                "error_message": "El nombre debe empezar con mayúscula y contener solo letras"
+            },
+            "cedula": {
+                "tipo": "integer",
+                "min": 1000000000,
+                "max": 9999999999,
+                "required": true,
+                "error_message": "El número de cédula debe ser un número entre 1000000000 y 9999999999"
+            },
+            "email": {
+                "tipo": "string",
+                "regex": "[^@]+@[^@]+\\.[^@]+",
+                "required": true,
+                "error_message": "El email debe tener un formato válido"
+            }
+        },
+        "Pedidos": {
+            "producto": {
+                "tipo": "string",
+                "required": true,
+                "error_message": "Se requiere un producto"
+            },
+            "cantidad": {
+                "tipo": "integer",
+                "min": 1,
+                "required": true,
+                "error_message": "La cantidad debe ser en números"
+            }
+        }
+    }
+}

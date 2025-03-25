@@ -1,0 +1,374 @@
+[
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Emisor"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Grupo Económico"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Sector"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Calificacion del emisor"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Intermediario"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Titulo"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Nemotécnico"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "ISIN"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Calificación Emisión"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Operación"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Tipo de Garantia"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Fecha.Compra"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Fec. Emisión"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Fec. Vencimiento"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Fec. Compromiso"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Tasa Nóminal"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Mod/Per"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Tasa de Valoración"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Tasa de negociación"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "F. Precio Mdo"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Precio de mercado"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "TIR"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Moneda de posición"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Unidades"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Valor nominal"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Valor de compra"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Valor contable en moneda de posición"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Valor contable en moneda de valoración"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Fecha Reporte"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Segmento"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Nombre Portafolio"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Corredor"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "IND"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Clase de Producto"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "CVG"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Depósito"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Duración del Titulo"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Duración Modificada"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Convexidad"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Cupon Corrido"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Margen"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Calificación"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Àrea de Valoración"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Precio Mdo promedio"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Àrea de Valoración.1"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Asignación"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Base"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Clase de contrato"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Clase Operación"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Cod Cl Prod"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Código Intermediario"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "ID Garantia"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Interlocutor con el que hay un compromis"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "lot_id"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Modalidad Inversión"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Moneda valoración"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Plaza Bursatil"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Portafolio"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Rol Interlocutor"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Sociedad"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Tipo de cambio"
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Valor compra en mon.valoración"
+  }
+]
