@@ -13,6 +13,10 @@ from config import Config
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pandas as pd, json, time, os,re
+from app.json_routes import json_routes
+app.register_blueprint(json_routes)
+
+
 def enviar_reporte_errores(errores, destinatario):
     # Configuración del servidor SMTP
     smtp_server = "smtp.office365.com"
@@ -125,11 +129,11 @@ def ldap_authenticate(email, password):
     except Exception as e:
         print(f"Error en autenticación LDAP: {e}")
         return False
-@app.route('/')
+@app.route('/paginaInicial')
 def index_page():
     return render_template('index.html')
 
-@app.route('/inicio_sesion', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def inicio_sesion():
     if request.method == 'GET':
         # Renderiza la página de inicio de sesión
@@ -143,10 +147,19 @@ def inicio_sesion():
         # Verifica las credenciales con LDAP
         if ldap_authenticate(email, password):
             session['user'] = email  # Guarda el usuario en la sesión
-            return redirect(url_for('validador'))  # Redirige a la página validador.html
+            flash("Inicio de sesión exitoso.", "success")
+            return redirect(url_for('index_page'))  # Redirige a la página validador.html
         else:
             flash("Usuario y/o Contraseña incorrecta.", "error")
             return redirect(url_for('inicio_sesion'))
+
+
+@app.route('/cerrar_sesion')
+def cerrar_sesion():
+    # Elimina la sesión del usuario
+    session.pop('user', None)
+    flash("Sesión cerrada exitosamente.", "success")
+    return redirect(url_for('inicio_sesion'))
 
 
 @app.route('/dashboard', methods=['GET'])
@@ -381,6 +394,7 @@ def index():
       </script>
     </head>
     <body class="container my-5">
+    
       <!-- Modal de selección de archivo -->
       <div class="modal fade show d-block" id="modalSeleccionArchivo" tabindex="-1" aria-hidden="false">
         <div class="modal-dialog">
@@ -571,37 +585,51 @@ def guardar_plantilla():
     try:
         data = request.get_json()
         editado = data.get("editado")  # Lista de diccionarios, cada uno con "Nombre", "1", "2" y "3"
-        
+
         # Re-abrir el Excel completo para validar los datos reales
         xls = pd.ExcelFile(uploaded_excel)
         sheet = "Clientes" if "Clientes" in xls.sheet_names else xls.sheet_names[0]
         df_full = pd.read_excel(uploaded_excel, sheet_name=sheet)
-        
+
         # Inicializamos un diccionario para acumular errores de validación
         validation_errors = {}
-        
+
         # Para cada configuración (fila de la plantilla), se obtiene el regex y se valida la columna correspondiente
         for config in editado:
             header = config["Nombre"]  # Se espera que este valor coincida con un encabezado de df_full
             option = config["3"]  # Ej: "FormatoNumeroEntero", etc.
-            
+
             # Consultar el regex correspondiente en la BD
             conn = conectar_db()
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT Expresion_Regular
-                FROM dbo.ExpresionRegular
+                FROM dbo.ExpresionesRegulares
                 WHERE nombre_ExpresionRegular = ?
-                  AND estado_ExpresionRegular = 'activo'
+                AND estado_ExpresionRegular = 'activo'
             """, option)
+
             result = cursor.fetchone()
             cursor.close()
             conn.close()
-            
+
             if result:
                 regex = result[0]
-                config["ExpresionRegex"] = regex  # Se añade la expresión al JSON final
-                
+
+                # Normalizar expresión regular (eliminar escapes dobles si existen)
+                regex = regex.replace("\\\\", "\\")
+
+                # Validar que la expresión sea válida en Python
+                try:
+                    re.compile(regex)
+                    config["ExpresionRegex"] = regex  # Se añade la expresión al JSON final
+                except re.error as e:
+                    return jsonify({
+                        "success": False,
+                        "error": f"Expresión inválida en la BD: {str(e)}",
+                        "regex": regex
+                    }), 400
+
                 # Validar si el encabezado existe en el Excel completo
                 if header in df_full.columns:
                     # Convertir todos los valores a cadena y eliminar NaN
@@ -617,7 +645,7 @@ def guardar_plantilla():
             else:
                 # Si no se encontró la expresión, se asigna vacío (o se puede tratar como error)
                 config["ExpresionRegex"] = ""
-        
+
         # Si existen errores, se retorna el JSON con detalles
         if validation_errors:
             return jsonify({
@@ -625,17 +653,18 @@ def guardar_plantilla():
                 "error": "Errores de validación",
                 "details": validation_errors
             }), 400
-        
+
         # Si todo es correcto, guardar el JSON final
         editado_filename = f"{os.path.splitext(os.path.basename(uploaded_excel))[0]}.json"
         full_path = os.path.join(OUTPUT_FOLDER, editado_filename)
         with open(full_path, "w", encoding="utf-8") as f:
             json.dump(editado, f, ensure_ascii=False, indent=2)
-        
+
         return jsonify({
             "success": True,
             "descarga_editado": url_for('descargar', filename=editado_filename)
         })
+
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

@@ -145,6 +145,7 @@ canvas_html = f"""
 <html>
 <head>
     <meta charset="utf-8">
+    
     <title>Tabla Editable de Validaciones</title>
     <style>
         body {{
@@ -176,6 +177,7 @@ canvas_html = f"""
     </style>
 </head>
 <body>
+
     <h2 style="text-align:center;">Tabla Editable de Validaciones</h2>
     <div class="canvas-container">
         {table_html}
