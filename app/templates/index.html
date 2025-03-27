@@ -11,9 +11,7 @@
             font-family: 'Arial', sans-serif;
             background-color: #ffe5e5; /* Fondo rojo claro */
         }
-        header {
-            background-color: #b30000; /* Rojo oscuro */
-        }
+
         header h1 {
             margin: 0;
         }
@@ -26,15 +24,12 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
         }
-        footer {
-            background-color: #b30000; /* Rojo oscuro */
-            color: #ffffff;
-        }
+        
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="text-white py-3">
+    <header class="bg-danger text-white py-3 mb-4">
         <div class="container d-flex justify-content-between align-items-center">
             <img src="{{ url_for('static', filename='logoBlanco.png') }}" alt="Logo" class="me-3" style="height: 100px;">
             <h1 class="h4">Validador de Archivo</h1>
@@ -66,7 +61,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="text-center py-3 mt-5">
+    <footer class="bg-danger text-white text-center py-3 mt-5">
         <p class="mb-0">© 2025 Universidad del rosario. Todos los derechos reservados.</p>
     </footer>
 

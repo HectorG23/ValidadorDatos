@@ -1,0 +1,23 @@
+[
+  {
+    "1": "date",
+    "2": "obligatorio",
+    "3": "FormatoFechaAñoMesDia",
+    "Nombre": "Fecha_Pedido",
+    "ExpresionRegex": ""
+  },
+  {
+    "1": "string",
+    "2": "obligatorio",
+    "3": "FormatoCorreoElectronico",
+    "Nombre": "Correo",
+    "ExpresionRegex": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+  },
+  {
+    "1": "integer",
+    "2": "obligatorio",
+    "3": "FormatoNumeroEntero",
+    "Nombre": "Monto",
+    "ExpresionRegex": "^\\d+$"
+  }
+]

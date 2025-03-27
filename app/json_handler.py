@@ -34,13 +34,18 @@ def conectar_db():
         return None
 
 def mover_a_historicos(nombre_plantilla, ruta_actual):
-    historicos_dir = os.path.join(os.path.dirname(ruta_actual), 'historicos')
-    if not os.path.exists(historicos_dir):
-        os.makedirs(historicos_dir)
+    # Define la nueva ruta donde se moverá el archivo
+    nueva_ruta = os.path.join("uploads/historicos", nombre_plantilla)
 
-    nombre_archivo_original = os.path.basename(ruta_actual)
-    nueva_ruta = os.path.join(historicos_dir, nombre_archivo_original)
+    # Verifica si el archivo existe en la ruta actual
+    if not os.path.exists(ruta_actual):
+        print(f"Advertencia: El archivo no existe en la ruta especificada: {ruta_actual}")
+        return None  # O manejar el caso según sea necesario
 
+    # Crea la carpeta de destino si no existe
+    os.makedirs(os.path.dirname(nueva_ruta), exist_ok=True)
+
+    # Mueve el archivo a la nueva ruta
     shutil.move(ruta_actual, nueva_ruta)
     return nueva_ruta
 
@@ -71,10 +76,15 @@ def subir_json(json_path,idProcesoAdmin):
     row = cursor.fetchone()
     if row:
         ruta_actual = row[0]
-        nueva_ruta = mover_a_historicos(nombre_plantilla, ruta_actual)
-        cursor.execute("UPDATE dbo.PlantillasValidacion SET RutaJSON = ? WHERE NombrePlantilla = ?", nueva_ruta, nombre_plantilla)
-        conn.commit()
-        print(f"Archivo existente movido a {nueva_ruta}")
+        if not os.path.exists(ruta_actual):
+            print(f"Advertencia: La ruta almacenada en la base de datos no es válida: {ruta_actual}")
+            ruta_actual = None  # O manejar el caso según sea necesario
+        else:
+            nueva_ruta = mover_a_historicos(nombre_plantilla, ruta_actual)
+            cursor.execute("UPDATE dbo.PlantillasValidacion SET RutaJSON = ? WHERE NombrePlantilla = ?", nueva_ruta, nombre_plantilla)
+            conn.commit()
+            print(f"Ruta actual obtenida de la base de datos: {ruta_actual}")
+            print(f"Archivo existente movido a {nueva_ruta}")
     
     insert_query = """
         INSERT INTO [dbo].[PlantillasValidacion]

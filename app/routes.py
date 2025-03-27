@@ -479,8 +479,8 @@ def mostrar_tabla():
              <thead>
                <tr>
                  <th>Nombre</th>
-                 <th>1</th>
-                 <th>2</th>
+                 <th>Type</th>
+                 <th>Required</th>
                  <th>3</th>
                </tr>
              </thead>
