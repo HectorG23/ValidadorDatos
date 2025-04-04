@@ -793,7 +793,6 @@ def mostrar_tabla():
     return render_template_string(html_template, rows=rows, original_json=original_json, nombre_archivo=nombre_archivo, uploaded_excel=uploaded_excel)
 
 # Ruta: Guardar el JSON editado y permitir su descarga (y guardar en la BD)
-# Ruta: Guardar el JSON editado y permitir su descarga (y guardar en la BD)
 @app.route('/guardar_plantilla', methods=["POST"])
 def guardar_plantilla():
     try:
