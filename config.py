@@ -1,15 +1,19 @@
+import os
 
 class Config:
-    # Configuración de la base de datos (Azure SQL) con AAD MFA
-    UPLOAD_FOLDER = 'path/to/upload/folder'
-    DB_CONFIG = {
-        'server':'sqls-ur-datamining-dev.database.windows.net',  # Nombre del servidor Azure
-        'database': 'DB_ValidadorArchivos',                             # Nombre de la BD en Azure
-        'driver': 'ODBC Driver 18 for SQL Server',     # Ajusta si usas Driver 17 u otra versión            # Tipo de autenticación
-    }
+    SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
+    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', './uploads')
+    VALIDATED_FOLDER = os.getenv('VALIDATED_FOLDER', './validated')
+    DIFFERENT_FOLDER = os.getenv('DIFFERENT_FOLDER', './different')
 
-    # Configuración de la aplicación
-    UPLOAD_FOLDER = 'uploads'
-    VALIDATED_FOLDER = 'validated'
-    DIFFERENT_FOLDER = 'different'
-    SECRET_KEY = 'supersecretykey'
+    # Configuración de la base de datos
+    DATABASE_SERVER = os.getenv('DATABASE_SERVER')
+    DATABASE_NAME = os.getenv('DATABASE_NAME')
+    DATABASE_USER = os.getenv('DATABASE_USER')
+    DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD')
+    DATABASE_DRIVER = os.getenv('DATABASE_DRIVER')
+
+    SQLALCHEMY_DATABASE_URI = (
+        f"mssql+pyodbc://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_SERVER}/{DATABASE_NAME}"
+        f"?driver={DATABASE_DRIVER}"
+    )   
