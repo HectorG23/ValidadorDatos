@@ -9,7 +9,7 @@ import shutil
 import os
 from ldap3 import Server, Connection, ALL
 import smtplib
-from config import Config
+from app.config import Config
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import pandas as pd, json, time, os,re
@@ -788,7 +788,6 @@ def mostrar_tabla():
     return render_template_string(html_template, rows=rows, original_json=original_json, nombre_archivo=nombre_archivo, uploaded_excel=uploaded_excel)
 
 # Ruta: Guardar el JSON editado y permitir su descarga (y guardar en la BD)
-# Ruta: Guardar el JSON editado y permitir su descarga (y guardar en la BD)
 @app.route('/guardar_plantilla', methods=["POST"])
 def guardar_plantilla():
     try:
@@ -805,6 +804,8 @@ def guardar_plantilla():
         uploaded_excel = data.get("uploaded_excel") or session.get("uploaded_excel")
         if not uploaded_excel or not os.path.exists(uploaded_excel):
             return jsonify({"success": False, "error": "Archivo Excel no encontrado"}), 400
+
+        
 
         # 4. Procesar Excel
         xls = pd.ExcelFile(uploaded_excel)
@@ -879,10 +880,11 @@ def guardar_plantilla():
             
             cursor.execute("""
                 INSERT INTO dbo.PlantillasValidacion 
-                (NombrePlantilla, ContenidoJSON, RutaJSON, 
+                (idProcesoAdmin, NombrePlantilla, ContenidoJSON, RutaJSON, 
                  FechaCarga, FechaUltimaModificacion, UsuarioCargue, EstadoPlantilla)
-                VALUES (?, ?, ?, GETDATE(), GETDATE(), ?, ?)
+                VALUES (?, ?, ?, ?, GETDATE(), GETDATE(), ?, ?)
             """, (
+                
                 nombre_archivo,
                 json.dumps(editado, ensure_ascii=False),
                 ruta_archivo,

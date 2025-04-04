@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify
-from app import app
+from app.app import app
 import pyodbc
 from app.json_handler import conectar_db, obtener_nombres_json, subir_json
 from app.validations import validar_excel_con_cerberus
