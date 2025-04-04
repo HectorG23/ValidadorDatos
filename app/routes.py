@@ -548,26 +548,30 @@ def mostrar_tabla():
     if not uploaded_excel or not os.path.exists(uploaded_excel):
         return "No se ha subido ningún archivo Excel.", 400
 
+    # Cargar el Excel y elegir la hoja ("Clientes" o la primera)
     xls = pd.ExcelFile(uploaded_excel)
     if "Clientes" in xls.sheet_names:
         df = pd.read_excel(uploaded_excel, sheet_name="Clientes")
     else:
         df = pd.read_excel(uploaded_excel, sheet_name=xls.sheet_names[0])
-
+    
+    # Convertir columnas de fecha a texto con formato dd/mm/yyyy
     for col in df.columns:
         if pd.api.types.is_datetime64_any_dtype(df[col]):
             df[col] = df[col].dt.strftime('%d/%m/%Y')
-
+    
+    # Transponer para obtener los encabezados como índice y crear DataFrame
     df_transpuesto = df.T
     df_campos = pd.DataFrame(df_transpuesto.index, columns=["Nombre"])
+    # Añadir tres columnas vacías para configurar opciones (Type, Required y Regex)
     df_campos["1"] = ""
     df_campos["2"] = ""
     df_campos["3"] = ""
     rows = df_campos.to_dict(orient='records')
     original_json = json.dumps(rows, ensure_ascii=False)
-
+    
     nombre_archivo = os.path.basename(uploaded_excel)
-
+    
     html_template = """
     <!DOCTYPE html>
     <html lang="es">
@@ -576,136 +580,218 @@ def mostrar_tabla():
        <meta name="viewport" content="width=device-width, initial-scale=1">
        <title>Editar Plantilla</title>
        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-       <style>
-         /* ... tus estilos CSS ... */
-       </style>
+        <style>
+    :root {
+      --azul-oscuro: #1e3a8a;
+      --rojo-primario: #e11d48;
+      --rojo-oscuro: #b30000;
+      --rojo-bootstrap: #dc3545;
+      --rojo-claro: #ffcccc;
+    }
+    
+    body {
+        background: linear-gradient(135deg, var(--azul-oscuro), var(--rojo-primario));
+        color: #fff;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    
+    .btn-primary {
+        background-color: var(--azul-oscuro);
+        border-color: var(--azul-oscuro);
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--rojo-primario);
+        border-color: var(--rojo-primario);
+    }
+    
+    header {
+        background-color: var(--rojo-bootstrap);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    footer {
+        background-color: var(--rojo-oscuro);
+        color: white;
+        padding: 15px 0;
+        margin-top: auto;
+    }
+    
+    .logo-header {
+        height: 70px;
+        transition: transform 0.3s;
+    }
+    
+    .logo-header:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Estilos para la tabla */
+    #editableTable {
+        border: 2px solid #000 !important;
+        background-color: transparent;
+        margin: 20px auto;
+    }
+    
+    #editableTable th, 
+    #editableTable td {
+        border: 1px solid #000 !important;
+        background-color: var(--rojo-claro);
+        color: #000;
+    }
+    
+    #editableTable th {
+        background-color: var(--rojo-bootstrap);
+        color: white;
+        font-weight: bold;
+    }
+    
+    #editableTable select {
+        background-color: white;
+        border: 1px solid #000;
+    }
+    
+    .texto-blanco {
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+    }
+    
+    .main-content {
+        padding: 20px;
+    }
+   </style>
     </head>
     <body>
-      <header class="text-white">
-         <div class="container header-content">
-             <img src="{{ url_for('static', filename='logoBlanco.png') }}" alt="Logo Universidad del Rosario" class="logo-header">
-         </div>
-      </header>
-      <main class="container my-4">
-         <div class="table-container">
+    <body>
+    <!-- Encabezado con logo -->
+    <header class="text-white">
+        <div class="container header-content">
+            <img src="{{ url_for('static', filename='logoBlanco.png') }}" alt="Logo Universidad del Rosario" class="logo-header">
+           
+        </div>
+    </header>
+
+        <main class="container my-4">
+        <div class="table-container">
             <div class="info-archivo texto-negro">
                 <h1 class="texto-negro">Archivo Seleccionado: {{ nombre_archivo }}</h1>
                 <p class="texto-negro">Ruta Del Archivo Excel: {{ uploaded_excel }}</p>
-                <!-- Campo opcional para idProcesoAdmin -->
-                <label for="idProcesoAdmin" class="texto-negro">ID Proceso Admin (opcional):</label>
-                <input type="text" id="idProcesoAdmin" name="idProcesoAdmin" class="form-control">
             </div>
+            
             <table id="editableTable" class="table">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Type</th>
-                        <th>Required</th>
-                        <th>Regex</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in rows %}
-                      <tr>
-                        <td>{{ row["Nombre"] }}</td>
-                        <td>
-                          <select class="form-select">
-                            <option value="string">string</option>
-                            <option value="date">date</option>
-                            <option value="number">number</option>
-                            <option value="integer">integer</option>
-                          </select>
-                        </td>
-                        <td>
-                          <select class="form-select">
-                            <option value="obligatorio">obligatorio</option>
-                            <option value="opcional">opcional</option>
-                          </select>
-                        </td>
-                        <td>
-                          <select class="form-select">
-                            <option value="FormatoFechaDiaMesAño">FormatoFechaDiaMesAño</option>
-                            <option value="FormatoCorreoElectronico">FormatoCorreoElectronico</option>
-                            <option value="FormatoNumeroEntero">FormatoNumeroEntero</option>
-                          </select>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                 <th>Nombre</th>
+                 <th>Type</th>
+                 <th>Required</th>
+                 <th>Regex</th>
+               </tr>
+             </thead>
+             <tbody>
+               {% for row in rows %}
+                 <tr>
+                   <td>{{ row["Nombre"] }}</td>
+                   <td>
+                     <select class="form-select">
+                       <option value="string">string</option>
+                       <option value="date">date</option>
+                       <option value="number">number</option>
+                       <option value="integer">integer</option>
+                     </select>
+                   </td>
+                   <td>
+                     <select class="form-select">
+                       <option value="obligatorio">obligatorio</option>
+                       <option value="opcional">opcional</option>
+                     </select>
+                   </td>
+                   <td>
+                     <select class="form-select">
+                       <option value="FormatoFechaDiaMesAño">FormatoFechaDiaMesAño</option>
+                       <option value="FormatoCorreoElectronico">FormatoCorreoElectronico</option>
+                       <option value="FormatoNumeroEntero">FormatoNumeroEntero</option>
+                     </select>
+                   </td>
+                 </tr>
+               {% endfor %}
+             </tbody>
+          </table>
          </div>
-         <div class="text-center mt-4">
-             <button id="cargarBtn" class="btn btn-primary">Cargar Plantilla</button>
-         </div>
-      </main>
-      <footer class="text-center py-3">
-         <div class="container">
-             <p class="mb-0">© 2025 Universidad del Rosario. Todos los derechos reservados.</p>
-         </div>
-      </footer>
+          <div class="text-center mt-4">
+              <button id="cargarBtn" class="btn btn-primary">Cargar Plantilla</button>
+          </div>
+        </main> 
+       
+           <footer class="text-center py-3">
+        <div class="container">
+            <p class="mb-0">© 2025 Universidad del Rosario. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-      <script>
-         var originalData = {{ original_json|safe }};
-
-         function getEditedData() {
-             var edited = [];
-             var table = document.getElementById("editableTable");
-             var rows = table.querySelector("tbody").querySelectorAll("tr");
-             rows.forEach(function(row) {
-                 var cells = row.querySelectorAll("td");
-                 var config = {
-                     "Nombre": cells[0].innerText.trim(),
-                     "1": cells[1].querySelector("select").value,
-                     "2": cells[2].querySelector("select").value,
-                     "3": cells[3].querySelector("select").value
-                 };
-                 edited.push(config);
-             });
-             return edited;
-         }
-
-         document.getElementById("cargarBtn").addEventListener("click", function() {
-             var editedData = getEditedData();
-             // Recuperamos el valor opcional de idProcesoAdmin
-             var idProcesoAdmin = document.getElementById("idProcesoAdmin").value;
-
-             var payload = { 
-                "editado": editedData,
-                "idProcesoAdmin": idProcesoAdmin  // se enviará vacío si no se ingresa nada
-             };
-
-             fetch("/guardar_plantilla", {
-                 method: "POST",
-                 headers: { "Content-Type": "application/json" },
-                 body: JSON.stringify(payload)
-             })
-             .then(response => response.json())
-             .then(result => {
-                 if(result.success) {
-                     alert("Plantilla guardada exitosamente.");
-                     window.location.href = result.download_url;
-                 } else {
-                     alert(result.error);
-                     console.log("Detalles del error:", result);
-                 }
-             })
-             .catch(error => {
-                 console.error("Error:", error);
-                 alert("Error al enviar los datos al servidor.");
-             });
-         });
-      </script>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+       
+       <script>
+    var originalData = {{ original_json|safe }};
+    
+    function getEditedData() {
+        var edited = [];
+        var table = document.getElementById("editableTable");
+        var rows = table.querySelector("tbody").querySelectorAll("tr");
+        rows.forEach(function(row) {
+            var cells = row.querySelectorAll("td");
+            var config = {
+                "Nombre": cells[0].innerText.trim(),
+                "1": cells[1].querySelector("select").value,
+                "2": cells[2].querySelector("select").value,
+                "3": cells[3].querySelector("select").value
+            };
+            edited.push(config);
+        });
+        return edited;
+    }
+    
+    document.getElementById("cargarBtn").addEventListener("click", function() {
+        var editedData = getEditedData();
+        var payload = { "editado": editedData };
+        
+        fetch("/guardar_plantilla", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if(result.success) {
+                alert("Plantilla guardada exitosamente.");
+                window.location.href = result.descarga_editado;
+            } else {
+                // Muestra el mensaje de error completo en una alerta
+                alert(result.error);
+                console.log("Detalles del error:", result);
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Error al enviar los datos al servidor.");
+        });
+    });
+</script>
+       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
     </html>
+
     """
-    return render_template_string(
-        html_template,
-        rows=rows,
-        original_json=original_json,
-        nombre_archivo=nombre_archivo,
-        uploaded_excel=uploaded_excel
-    )
+    return render_template_string(html_template, rows=rows, original_json=original_json, nombre_archivo=nombre_archivo, uploaded_excel=uploaded_excel)
 
 # Ruta: Guardar el JSON editado y permitir su descarga (y guardar en la BD)
 @app.route('/guardar_plantilla', methods=["POST"])
@@ -723,6 +809,7 @@ def guardar_plantilla():
         if not uploaded_excel or not os.path.exists(uploaded_excel):
             return jsonify({"success": False, "error": "Archivo Excel no encontrado"}), 400
 
+        # Procesar Excel
         xls = pd.ExcelFile(uploaded_excel)
         sheet = "Clientes" if "Clientes" in xls.sheet_names else xls.sheet_names[0]
         df_full = pd.read_excel(uploaded_excel, sheet_name=sheet)
@@ -730,12 +817,11 @@ def guardar_plantilla():
             if pd.api.types.is_datetime64_any_dtype(df_full[col]):
                 df_full[col] = df_full[col].dt.strftime('%d/%m/%Y')
 
+        # Validaciones
         validation_errors = []
         conn = conectar_db()
         try:
             cursor = conn.cursor()
-
-            # Validar cada campo
             for config in editado:
                 header = config.get("Nombre")
                 option = config.get("3")
@@ -747,7 +833,7 @@ def guardar_plantilla():
                     SELECT Expresion_Regular
                     FROM dbo.ExpresionesRegulares
                     WHERE nombre_ExpresionRegular = ? 
-                      AND estado_ExpresionRegular = 'activo'
+                    AND estado_ExpresionRegular = 'activo'
                 """, (option,))
                 result = cursor.fetchone()
                 if result:
@@ -759,14 +845,11 @@ def guardar_plantilla():
                             col_values = df_full[header].dropna().astype(str)
                             for idx, value in col_values.items():
                                 if not re.fullmatch(regex, value):
-                                    validation_errors.append(
-                                        f"Fila {idx+2}: Valor '{value}' no cumple el formato"
-                                    )
+                                    validation_errors.append(f"Fila {idx+2}: Valor '{value}' no cumple el formato")
                     except re.error as e:
                         validation_errors.append(f"Regex inválido para {option}: {str(e)}")
                 else:
                     config["ExpresionRegex"] = ""
-
             if validation_errors:
                 return jsonify({
                     "success": False,
@@ -782,24 +865,19 @@ def guardar_plantilla():
             with open(ruta_archivo, "w", encoding="utf-8") as f:
                 json.dump(editado, f, ensure_ascii=False, indent=2)
 
-            # -----------
-            # OBTENER idProcesoAdmin y usar 0 por defecto
-            # -----------
+            # Recuperar idProcesoAdmin enviado; si no se envía, usar 1 (valor válido)
             id_proceso_str = data.get("idProcesoAdmin", "").strip()
             if not id_proceso_str:
-                # Si el campo está vacío, usaremos 0
-                id_proceso = 0
+                id_proceso = 1  # Valor por defecto, asegúrate de que exista en ProcesosAdministrativos
             else:
-                # Convertir a entero (si tu columna es INT)
                 try:
                     id_proceso = int(id_proceso_str)
                 except ValueError:
-                    # Si no es un número, usamos 0 o cualquier otro valor que decidas
-                    id_proceso = 0
+                    id_proceso = 1
 
             usuario = session.get('user', 'default_user')
-
-            # Insertar en BD con idProcesoAdmin
+            
+            # Insertar incluyendo idProcesoAdmin
             cursor.execute("""
                 INSERT INTO dbo.PlantillasValidacion 
                 (idProcesoAdmin, NombrePlantilla, ContenidoJSON, RutaJSON, 
@@ -814,7 +892,6 @@ def guardar_plantilla():
                 'activo'
             ))
             conn.commit()
-
             return jsonify({
                 "success": True,
                 "message": "Plantilla guardada correctamente",
@@ -830,6 +907,7 @@ def guardar_plantilla():
         return jsonify({"success": False, "error": f"Error interno: {str(e)}"}), 500
 
 
+# Ruta: Descargar el JSON editado
 @app.route('/descargar/<filename>')
 def descargar(filename):
     return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)

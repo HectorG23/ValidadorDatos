@@ -9,13 +9,11 @@ from config import Config
 def conectar_db():
     try:
         db_config = Config.DB_CONFIG
-        print("Configuración de la base de datos:", db_config)
         connection_string = (
             f"DRIVER={{{db_config['driver']}}};"
             f"SERVER={db_config['server']};"
             f"DATABASE={db_config['database']};"
-            f"UID={db_config['username']};"
-            f"PWD={db_config['password']};"
+            f"Authentication={db_config['authentication']};"
         )
         conn = pyodbc.connect(connection_string)
         print("Conexión a la base de datos exitosa.")

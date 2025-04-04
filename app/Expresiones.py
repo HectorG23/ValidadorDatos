@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template_string
 import pyodbc
 import os
-from app.config import Config  # Importamos la configuración centralizada
+from config import Config  # Importamos la configuración centralizada
 
 app = Flask(__name__)
 app.config.from_object(Config)  # Cargamos la configuración
