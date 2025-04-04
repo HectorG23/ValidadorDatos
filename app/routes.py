@@ -526,6 +526,7 @@ def index():
     return render_template_string(html_template)
 # Definimos la variable global
 uploaded_excel = None
+
 @app.route('/upload_excel', methods=["POST"])
 def upload_excel():
     if "file" not in request.files:
@@ -796,7 +797,6 @@ def mostrar_tabla():
 @app.route('/guardar_plantilla', methods=["POST"])
 def guardar_plantilla():
     try:
-        # 1. Validación inicial de datos
         data = request.get_json()
         if not data:
             return jsonify({"success": False, "error": "No se recibieron datos"}), 400
@@ -805,38 +805,30 @@ def guardar_plantilla():
         if not editado:
             return jsonify({"success": False, "error": "No se proporcionaron datos editados"}), 400
 
-        # 2. Obtener ruta del Excel
         uploaded_excel = data.get("uploaded_excel") or session.get("uploaded_excel")
         if not uploaded_excel or not os.path.exists(uploaded_excel):
             return jsonify({"success": False, "error": "Archivo Excel no encontrado"}), 400
 
-        # 4. Procesar Excel
+        # Procesar Excel
         xls = pd.ExcelFile(uploaded_excel)
         sheet = "Clientes" if "Clientes" in xls.sheet_names else xls.sheet_names[0]
         df_full = pd.read_excel(uploaded_excel, sheet_name=sheet)
-        
-        # Convertir fechas
         for col in df_full.columns:
             if pd.api.types.is_datetime64_any_dtype(df_full[col]):
                 df_full[col] = df_full[col].dt.strftime('%d/%m/%Y')
 
-        # 5. Validaciones
+        # Validaciones
         validation_errors = []
         conn = conectar_db()
-        
         try:
             cursor = conn.cursor()
-            
-            # Validar cada campo
             for config in editado:
                 header = config.get("Nombre")
                 option = config.get("3")
-
                 if not header or not option:
                     validation_errors.append("Configuración incompleta")
                     continue
 
-                # Validar expresión regular
                 cursor.execute("""
                     SELECT Expresion_Regular
                     FROM dbo.ExpresionesRegulares
@@ -844,14 +836,11 @@ def guardar_plantilla():
                     AND estado_ExpresionRegular = 'activo'
                 """, (option,))
                 result = cursor.fetchone()
-
                 if result:
                     try:
                         regex = result[0].replace("\\\\", "\\")
-                        re.compile(regex)  # Validar regex
+                        re.compile(regex)
                         config["ExpresionRegex"] = regex
-                        
-                        # Validar datos en Excel
                         if header in df_full.columns:
                             col_values = df_full[header].dropna().astype(str)
                             for idx, value in col_values.items():
@@ -861,7 +850,6 @@ def guardar_plantilla():
                         validation_errors.append(f"Regex inválido para {option}: {str(e)}")
                 else:
                     config["ExpresionRegex"] = ""
-
             if validation_errors:
                 return jsonify({
                     "success": False,
@@ -869,24 +857,29 @@ def guardar_plantilla():
                     "details": validation_errors
                 }), 400
 
-            # 6. Guardar JSON en archivo
+            # Guardar JSON en archivo
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             nombre_base = os.path.splitext(os.path.basename(uploaded_excel))[0]
             nombre_archivo = f"{nombre_base}_{timestamp}.json"
             ruta_archivo = os.path.join(OUTPUT_FOLDER, nombre_archivo)
-            
             with open(ruta_archivo, "w", encoding="utf-8") as f:
                 json.dump(editado, f, ensure_ascii=False, indent=2)
 
-            # 7. Guardar en base de datos
+            # Recuperar idProcesoAdmin enviado; si no se envía, usar 0
+            id_proceso = data.get("idProcesoAdmin")
+            if not id_proceso:
+                id_proceso = 0
+
             usuario = session.get('user', 'default_user')
             
+            # Insertar incluyendo idProcesoAdmin
             cursor.execute("""
                 INSERT INTO dbo.PlantillasValidacion 
-                (NombrePlantilla, ContenidoJSON, RutaJSON, 
+                (idProcesoAdmin, NombrePlantilla, ContenidoJSON, RutaJSON, 
                  FechaCarga, FechaUltimaModificacion, UsuarioCargue, EstadoPlantilla)
-                VALUES (?, ?, ?, GETDATE(), GETDATE(), ?, ?)
+                VALUES (?, ?, ?, ?, GETDATE(), GETDATE(), ?, ?)
             """, (
+                id_proceso,
                 nombre_archivo,
                 json.dumps(editado, ensure_ascii=False),
                 ruta_archivo,
@@ -894,20 +887,17 @@ def guardar_plantilla():
                 'activo'
             ))
             conn.commit()
-
             return jsonify({
                 "success": True,
                 "message": "Plantilla guardada correctamente",
                 "download_url": url_for('descargar', filename=nombre_archivo)
             })
-
         except Exception as e:
             conn.rollback()
             return jsonify({"success": False, "error": f"Error en base de datos: {str(e)}"}), 500
         finally:
             cursor.close()
             conn.close()
-
     except Exception as e:
         return jsonify({"success": False, "error": f"Error interno: {str(e)}"}), 500
 
