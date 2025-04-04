@@ -4,33 +4,23 @@ from flask import current_app, render_template, request, redirect, url_for, flas
 import os
 import json
 import shutil
+from config import Config
 
 def conectar_db():
-    # 1. Obtén la configuración desde la clase Config
-    cfg = current_app.config['DB_CONFIG']
-    server = cfg['server']
-    database = cfg['database']
-    driver = cfg['driver']
-
-    # 2. Construye la cadena de conexión con Authentication=ActiveDirectoryInteractive
-    connection_string = (
-        f"DRIVER={{{driver}}};"
-        f"SERVER={server};"
-        f"DATABASE={database};"
-        "Authentication=ActiveDirectoryInteractive;"
-        "Encrypt=yes;"
-        "TrustServerCertificate=no;"
-        "Connection Timeout=30;"
-    )
-
-    # 3. Conéctate a la base de datos
     try:
-        print(f"Intentando conectar a la base de datos con la cadena de conexión: {connection_string}")
+        db_config = Config.DB_CONFIG
+        connection_string = (
+            f"DRIVER={{{db_config['driver']}}};"
+            f"SERVER={db_config['server']};"
+            f"DATABASE={db_config['database']};"
+            f"UID={db_config['username']};"
+            f"PWD={db_config['password']};"
+        )
         conn = pyodbc.connect(connection_string)
-        print("Conexión a la base de datos establecida.")
+        print("Conexión a la base de datos exitosa.")
         return conn
     except pyodbc.Error as e:
-        print(f"Error al conectar a la base de datos: {str(e)}")
+        print(f"Error al conectar a la base de datos: {e}")
         return None
 
 def mover_a_historicos(nombre_plantilla, ruta_actual):
