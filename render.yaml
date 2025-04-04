@@ -2,7 +2,7 @@ services:
   - type: web
     name: validador-inteligente
     env: python
-    buildCommand: "./install_odbc.sh && pip install -r requirements.txt"
+    buildCommand: "./startup.sh && pip install -r requirements.txt"
     startCommand: gunicorn run:app
     envVars:
       - key: FLASK_ENV
