@@ -134,7 +134,9 @@ def index_page():
     return render_template('index.html')
 
 @app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def inicio_sesion():
+    print(f"Request method: {request.method}")  # Depuración
     if request.method == 'GET':
         # Renderiza la página de inicio de sesión
         return render_template('inicioSesion.html')
@@ -152,6 +154,9 @@ def inicio_sesion():
         else:
             flash("Usuario y/o Contraseña incorrecta.", "error")
             return redirect(url_for('inicio_sesion'))
+
+    # Si por alguna razón no se ejecuta ninguno de los bloques anteriores
+    return redirect(url_for('inicio_sesion'))
 
 
 @app.route('/cerrar_sesion')

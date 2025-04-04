@@ -9,6 +9,7 @@ from config import Config
 def conectar_db():
     try:
         db_config = Config.DB_CONFIG
+        print("Configuración de la base de datos:", db_config)
         connection_string = (
             f"DRIVER={{{db_config['driver']}}};"
             f"SERVER={db_config['server']};"
