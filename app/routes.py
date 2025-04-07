@@ -865,48 +865,116 @@ def guardar_plantilla():
             return jsonify({"success": False, "error": "No se recibieron datos"}), 400
 
         editado = data.get("editado")
-        destino = data.get("destino")  # Carpeta seleccionada por el usuario
-        usuario = session.get('user', 'default_user')
-        
-        if not destino or destino not in ["Recursos humanos", "Direccion Tecnologica"]:
-            return jsonify({"success": False, "error": "Destino inválido"}), 400
-        
-        ruta_destino = os.path.join(OUTPUT_FOLDER, destino)
-        os.makedirs(ruta_destino, exist_ok=True)
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        nombre_archivo = f"plantilla_{timestamp}.json"
-        ruta_archivo = os.path.join(ruta_destino, nombre_archivo)
-        
-        with open(ruta_archivo, "w", encoding="utf-8") as f:
-            json.dump(editado, f, ensure_ascii=False, indent=2)
-        
+        if not editado:
+            return jsonify({"success": False, "error": "No se proporcionaron datos editados"}), 400
+
+        uploaded_excel = data.get("uploaded_excel") or session.get("uploaded_excel")
+        if not uploaded_excel or not os.path.exists(uploaded_excel):
+            return jsonify({"success": False, "error": "Archivo Excel no encontrado"}), 400
+
+        # Procesar Excel
+        xls = pd.ExcelFile(uploaded_excel)
+        sheet = "Clientes" if "Clientes" in xls.sheet_names else xls.sheet_names[0]
+        df_full = pd.read_excel(uploaded_excel, sheet_name=sheet)
+        for col in df_full.columns:
+            if pd.api.types.is_datetime64_any_dtype(df_full[col]):
+                df_full[col] = df_full[col].dt.strftime('%d/%m/%Y')
+
+        # Validaciones
+        validation_errors = []
         conn = conectar_db()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO dbo.PlantillasValidacion 
-            (NombrePlantilla, ContenidoJSON, RutaJSON, FechaCarga, UsuarioCargue, EstadoPlantilla, CarpetaDestino)
-            VALUES (?, ?, ?, GETDATE(), ?, 'activo', ?)
-        """, (nombre_archivo, json.dumps(editado, ensure_ascii=False), ruta_archivo, usuario, destino))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
-        return jsonify({
-            "success": True,
-            "message": "Plantilla guardada correctamente",
-            "download_url": url_for('descargar', filename=nombre_archivo, destino=destino),
-            "timestamp": timestamp,
-            "usuario": usuario
-        })
+        try:
+            cursor = conn.cursor()
+            for config in editado:
+                header = config.get("Nombre")
+                option = config.get("3")
+                if not header or not option:
+                    validation_errors.append("Configuración incompleta")
+                    continue
+
+                cursor.execute("""
+                    SELECT Expresion_Regular
+                    FROM dbo.ExpresionesRegulares
+                    WHERE nombre_ExpresionRegular = ? 
+                    AND estado_ExpresionRegular = 'activo'
+                """, (option,))
+                result = cursor.fetchone()
+                if result:
+                    try:
+                        regex = result[0].replace("\\\\", "\\")
+                        re.compile(regex)
+                        config["ExpresionRegex"] = regex
+                        if header in df_full.columns:
+                            col_values = df_full[header].dropna().astype(str)
+                            for idx, value in col_values.items():
+                                if not re.fullmatch(regex, value):
+                                    validation_errors.append(f"Fila {idx+2}: Valor '{value}' no cumple el formato")
+                    except re.error as e:
+                        validation_errors.append(f"Regex inválido para {option}: {str(e)}")
+                else:
+                    config["ExpresionRegex"] = ""
+            if validation_errors:
+                return jsonify({
+                    "success": False,
+                    "error": "Errores de validación",
+                    "details": validation_errors
+                }), 400
+
+            # Guardar JSON en archivo
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            nombre_base = os.path.splitext(os.path.basename(uploaded_excel))[0]
+            nombre_archivo = f"{nombre_base}_{timestamp}.json"
+            ruta_archivo = os.path.join(OUTPUT_FOLDER, nombre_archivo)
+            with open(ruta_archivo, "w", encoding="utf-8") as f:
+                json.dump(editado, f, ensure_ascii=False, indent=2)
+
+            # Recuperar idProcesoAdmin enviado; si no se envía, usar 1 (valor válido)
+            id_proceso_str = data.get("idProcesoAdmin", "").strip()
+            if not id_proceso_str:
+                id_proceso = 1  # Valor por defecto, asegúrate de que exista en ProcesosAdministrativos
+            else:
+                try:
+                    id_proceso = int(id_proceso_str)
+                except ValueError:
+                    id_proceso = 1
+
+            usuario = session.get('user', 'default_user')
+            
+            # Insertar incluyendo idProcesoAdmin
+            cursor.execute("""
+                INSERT INTO dbo.PlantillasValidacion 
+                (idProcesoAdmin, NombrePlantilla, ContenidoJSON, RutaJSON, 
+                 FechaCarga, FechaUltimaModificacion, UsuarioCargue, EstadoPlantilla)
+                VALUES (?, ?, ?, ?, GETDATE(), GETDATE(), ?, ?)
+            """, (
+                id_proceso,
+                nombre_archivo,
+                json.dumps(editado, ensure_ascii=False),
+                ruta_archivo,
+                usuario,
+                'activo'
+            ))
+            conn.commit()
+            return jsonify({
+                "success": True,
+                "message": "Plantilla guardada correctamente",
+                "download_url": url_for('descargar', filename=nombre_archivo)
+            })
+        except Exception as e:
+            conn.rollback()
+            return jsonify({"success": False, "error": f"Error en base de datos: {str(e)}"}), 500
+        finally:
+            cursor.close()
+            conn.close()
     except Exception as e:
         return jsonify({"success": False, "error": f"Error interno: {str(e)}"}), 500
 
 
-@app.route('/descargar/<destino>/<filename>')
-def descargar(destino, filename):
-    ruta_destino = os.path.join(OUTPUT_FOLDER, destino, filename)
-    if not os.path.exists(ruta_destino):
-        return "Archivo no encontrado.", 404
-    return send_from_directory(os.path.join(OUTPUT_FOLDER, destino), filename, as_attachment=True)
 
+@app.route('/descargar/<filename>')
+def descargar(filename):
+    file_path = os.path.join(OUTPUT_FOLDER, filename)
+    if not os.path.exists(file_path):
+        return "Archivo no encontrado.", 404
+    return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)
+ 
