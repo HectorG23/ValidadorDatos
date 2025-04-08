@@ -923,9 +923,10 @@ def guardar_plantilla():
                 }), 400
 
             # Guardar JSON en archivo
+            abreviaturaprocesoadministrativo = "DITIC" # traerlos de ProcesosAdministrativos.Abreviatura
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Formato: AñoMesDía_HoraMinutoSegundo
             nombre_base = os.path.splitext(os.path.basename(uploaded_excel))[0]  # Nombre sin extensión
-            nombre_archivo = f"{nombre_base}_{timestamp}.json"  # Ej: "datos_20240523_143022.json"
+            nombre_archivo = f" {abreviaturaprocesoadministrativo}_{nombre_base}_{timestamp}.json"  # Ej: "datos_20240523_143022.json"
             ruta_archivo = os.path.join(OUTPUT_FOLDER, nombre_archivo)  # Ruta completa
 
 # Guardar el JSON en un archivo
