@@ -1,5 +1,4 @@
-FROM python:3.9-bullseye  # Usamos la imagen completa de Debian
-
+FROM python:3.9-bullseye 
 # 1. Instalar dependencias del sistema
 RUN apt-get update && \
     apt-get install -y \
