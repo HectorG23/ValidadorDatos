@@ -8,10 +8,10 @@ class Config:
     DB_CONFIG = {
         'server': 'sqls-ur-datamining-dev.database.windows.net',
         'database': 'DB_ValidadorArchivos',
-        'username': secrets['db_user'],
-        'password': secrets['db_password'],
         'driver': 'ODBC Driver 18 for SQL Server',
         'authentication': 'ActiveDirectoryPassword',
+        'username': secrets['db_user'],
+        'password': secrets['db_password'],
     }
 
     UPLOAD_FOLDER = 'uploads'

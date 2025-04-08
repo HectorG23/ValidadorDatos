@@ -922,29 +922,36 @@ def guardar_plantilla():
                     "details": validation_errors
                 }), 400
 
-            # Guardar JSON en archivo
-            abreviaturaprocesoadministrativo = "DITIC" # traerlos de ProcesosAdministrativos.Abreviatura
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Formato: AñoMesDía_HoraMinutoSegundo
-            nombre_base = os.path.splitext(os.path.basename(uploaded_excel))[0]  # Nombre sin extensión
-            nombre_archivo = f" {abreviaturaprocesoadministrativo}_{nombre_base}_{timestamp}.json"  # Ej: "datos_20240523_143022.json"
-            ruta_archivo = os.path.join(OUTPUT_FOLDER, nombre_archivo)  # Ruta completa
-
-# Guardar el JSON en un archivo
-            with open(ruta_archivo, "w", encoding="utf-8") as f:
-             json.dump(editado, f, ensure_ascii=False, indent=2)  # indent=2 para formato legible
-
             # Recuperar idProcesoAdmin enviado; si no se envía, usar 1 (valor válido)
             id_proceso_str = data.get("idProcesoAdmin", "").strip()
             if not id_proceso_str:
-                id_proceso = 1  # Valor por defecto, asegúrate de que exista en ProcesosAdministrativos
+                id_proceso = 1
             else:
                 try:
                     id_proceso = int(id_proceso_str)
                 except ValueError:
                     id_proceso = 1
 
+            # Obtener abreviatura de la tabla según idProcesoAdmin
+            cursor.execute("""
+                SELECT abreviatura 
+                FROM dbo.ProcesosAdministrativos 
+                WHERE idProcesoAdmin = ?
+            """, (id_proceso,))
+            abreviatura_result = cursor.fetchone()
+            abreviaturaprocesoadministrativo = abreviatura_result[0] if abreviatura_result else "SIN_ABREV"
+
+            # Guardar JSON en archivo
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            nombre_base = os.path.splitext(os.path.basename(uploaded_excel))[0]
+            nombre_archivo = f"{abreviaturaprocesoadministrativo}_{nombre_base}_{timestamp}.json"
+            ruta_archivo = os.path.join(OUTPUT_FOLDER, nombre_archivo)
+
+            with open(ruta_archivo, "w", encoding="utf-8") as f:
+                json.dump(editado, f, ensure_ascii=False, indent=2)
+
             usuario = session.get('user', 'default_user')
-            
+
             # Insertar incluyendo idProcesoAdmin
             cursor.execute("""
                 INSERT INTO dbo.PlantillasValidacion 
