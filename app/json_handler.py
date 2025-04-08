@@ -8,17 +8,7 @@ from config import Config
 
 def conectar_db():
     try:
-        print("Iniciando conexión a la base de datos...")
-
         db_config = Config.DB_CONFIG
-
-        print("Configuración recibida:")
-        print(f"Servidor: {db_config['server']}")
-        print(f"Base de datos: {db_config['database']}")
-        print(f"Driver: {db_config['driver']}")
-        print(f"Autenticación: {db_config['authentication']}")
-        print(f"Usuario (UID): {db_config['username']}")
-
         connection_string = (
             f"DRIVER={{{db_config['driver']}}};"
             f"SERVER={db_config['server']};"
@@ -27,25 +17,12 @@ def conectar_db():
             f"PWD={db_config['password']};"
             f"Authentication={db_config['authentication']};"
         )
-
-        print("Cadena de conexión construida.")
-        print("Intentando conectar con pyodbc...")
-
         conn = pyodbc.connect(connection_string)
-        print("✅ Conexión a la base de datos exitosa.")
+        print("Conexión a la base de datos exitosa.")
         return conn
-
-    except pyodbc.InterfaceError as ie:
-        print("❌ Error de interfaz de ODBC (verifica el driver o el servidor).")
-        print(f"Detalles: {ie}")
-    except pyodbc.OperationalError as oe:
-        print("❌ Error operacional (credenciales o configuración incorrecta).")
-        print(f"Detalles: {oe}")
-    except Exception as e:
-        print("❌ Error inesperado al conectar a la base de datos.")
-        print(f"Detalles: {e}")
-    
-    return None
+    except pyodbc.Error as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return None
 
 
 def mover_a_historicos(nombre_plantilla, ruta_actual):
