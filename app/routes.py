@@ -564,9 +564,9 @@ def mostrar_tabla():
     df_transpuesto = df.T
     df_campos = pd.DataFrame(df_transpuesto.index, columns=["Nombre"])
     # Añadir tres columnas vacías para configurar opciones (Type, Required y Regex)
-    df_campos["1"] = ""
-    df_campos["2"] = ""
-    df_campos["3"] = ""
+    df_campos["Type"] = ""
+    df_campos["Required"] = ""
+    df_campos["Regex"] = ""
     rows = df_campos.to_dict(orient='records')
     original_json = json.dumps(rows, ensure_ascii=False)
     
@@ -805,9 +805,9 @@ function getEditedData() {
         var cells = row.querySelectorAll("td");
         var config = {
             "Nombre": cells[0].innerText.trim(),
-            "1": cells[1].querySelector("select").value,
-            "2": cells[2].querySelector("select").value,
-            "3": cells[3].querySelector("select").value
+            "Type": cells[1].querySelector("select").value,
+            "Required": cells[2].querySelector("select").value,
+            "Regex": cells[3].querySelector("select").value
         };
         edited.push(config);
     });
@@ -889,7 +889,7 @@ def guardar_plantilla():
             cursor = conn.cursor()
             for config in editado:
                 header = config.get("Nombre")
-                option = config.get("3")
+                option = config.get("Regex")
                 if not header or not option:
                     validation_errors.append("Configuración incompleta")
                     continue

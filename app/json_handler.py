@@ -13,6 +13,8 @@ def conectar_db():
             f"DRIVER={{{db_config['driver']}}};"
             f"SERVER={db_config['server']};"
             f"DATABASE={db_config['database']};"
+            f"UID={db_config['username']};"
+            f"PWD={db_config['password']};"
             f"Authentication={db_config['authentication']};"
         )
         conn = pyodbc.connect(connection_string)
@@ -21,6 +23,7 @@ def conectar_db():
     except pyodbc.Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         return None
+
 
 def mover_a_historicos(nombre_plantilla, ruta_actual):
     # Define la nueva ruta donde se moverá el archivo
