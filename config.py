@@ -6,7 +6,9 @@ class Config:
         'server':'sqls-ur-datamining-dev.database.windows.net',  # Nombre del servidor Azure
         'database': 'DB_ValidadorArchivos',                             # Nombre de la BD en Azure
         'driver': 'ODBC Driver 18 for SQL Server',  # Ajusta si usas Driver 17 u otra versión
-        'authentication': 'ActiveDirectoryInteractive',  # Tipo de autenticación (MFA)          
+        'authentication': 'ActiveDirectoryPassword',
+        'username': 'notificacionessii@urosario.edu.co',
+        'password': '30dQ0dIQDJ4L3rzpUHMo'  # Tipo de autenticación (MFA)          
     }
 
     # Configuración de la aplicación
