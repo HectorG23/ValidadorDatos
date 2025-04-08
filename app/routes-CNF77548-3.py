@@ -79,6 +79,7 @@ def get_db_parameters():
         cursor.execute("SELECT nombreParametro, valorParametro FROM dbo.Parametros")
         params = {row.nombreParametro: row.valorParametro for row in cursor.fetchall()}
         conn.close()
+        print("Dirección del servidor LDAP desde DB:", server_address)
         print("Parámetros obtenidos de la base de datos:", params)  # Depuración
         return params
     except Exception as e:
@@ -358,8 +359,8 @@ def obtener_fechas_json_route():
 # Determina la ruta base (la carpeta donde se encuentra este archivo)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # Define las carpetas relativas para guardar archivos
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "Plantillas", "Entrada")  # Elimina .json
-OUTPUT_FOLDER = os.path.join(BASE_DIR, "Plantillas", "Salida")    # Elimina .json
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "Plantillas.json", "Entrada")
+OUTPUT_FOLDER = os.path.join(BASE_DIR, "Plantillas.json", "Salida")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
@@ -388,7 +389,7 @@ def index():
     }
     
     body {
-        backgroAA: linear-gradient(135deg, var(--azul-oscuro), var(--rojo-primario));
+        background: linear-gradient(135deg, var(--azul-oscuro), var(--rojo-primario));
         color: #fff;
         margin: 0;
         padding: 0;
@@ -827,28 +828,26 @@ document.getElementById("cargarBtn").addEventListener("click", function() {
         "destino": destino
     };
     
-   fetch("/guardar_plantilla", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-})
-.then(response => response.json())
-.then(result => {
-    console.log("Respuesta del backend:", result);  // Para depurar
-    if(result.success) {
-        alert("Plantilla guardada exitosamente.");
-        // Descargar el archivo directamente desde la URL que envió el backend
-        window.location.href = result.download_url;
-    } else {
-        alert(result.error);
-        console.log("Detalles del error:", result);
-    }
-})
-.catch(error => {
-    console.error("Error:", error);
-    alert("Error al enviar los datos al servidor.");
-});
-
+    fetch("/guardar_plantilla", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if(result.success) {
+            alert("Plantilla guardada exitosamente en: " + destino);
+            // Descargar el archivo
+            window.location.href = `/descargar/${encodeURIComponent(destino)}/${result.filename}`;
+        } else {
+            alert(result.error);
+            console.log("Detalles del error:", result);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Error al enviar los datos al servidor.");
+    });
 });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -977,8 +976,9 @@ def guardar_plantilla():
 
 @app.route('/descargar/<filename>')
 def descargar(filename):
-    file_path = os.path.join(OUTPUT_FOLDER, filename)
+    safe_filename = secure_filename(filename)
+    file_path = os.path.join(OUTPUT_FOLDER, safe_filename)
     if not os.path.exists(file_path):
         return "Archivo no encontrado.", 404
-    return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)
+    return send_from_directory(OUTPUT_FOLDER, safe_filename, as_attachment=True)
  
