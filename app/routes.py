@@ -921,12 +921,14 @@ def guardar_plantilla():
                 }), 400
 
             # Guardar JSON en archivo
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            nombre_base = os.path.splitext(os.path.basename(uploaded_excel))[0]
-            nombre_archivo = f"{nombre_base}_{timestamp}.json"
-            ruta_archivo = os.path.join(OUTPUT_FOLDER, nombre_archivo)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Formato: AñoMesDía_HoraMinutoSegundo
+            nombre_base = os.path.splitext(os.path.basename(uploaded_excel))[0]  # Nombre sin extensión
+            nombre_archivo = f"{nombre_base}_{timestamp}.json"  # Ej: "datos_20240523_143022.json"
+            ruta_archivo = os.path.join(OUTPUT_FOLDER, nombre_archivo)  # Ruta completa
+
+# Guardar el JSON en un archivo
             with open(ruta_archivo, "w", encoding="utf-8") as f:
-                json.dump(editado, f, ensure_ascii=False, indent=2)
+             json.dump(editado, f, ensure_ascii=False, indent=2)  # indent=2 para formato legible
 
             # Recuperar idProcesoAdmin enviado; si no se envía, usar 1 (valor válido)
             id_proceso_str = data.get("idProcesoAdmin", "").strip()
